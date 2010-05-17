@@ -1,0 +1,45 @@
+ActsAsMultiConnection
+=====================
+this plugin enables to hash partitioning table 
+
+Example
+=======
+
+== database.yml ==
+production:
+  adapter: sqlite3
+  database: db/production.sqlite3
+  
+  sub:
+    sub_0:
+      adapter: sqlite3
+      database: db/production/sub0.sqlite3
+    sub_1:
+      adapter: sqlite3
+      database: db/production/sub1.sqlite3
+====
+
+
+if you want to part 'cities' table by country_id, 
+
+== model ==
+class City << ActiveRecord::MultiConnection
+   def connection_hash
+       if country_id < 100
+          :sub_0
+       else
+          :sub_1
+       end
+   end
+end
+
+City.new(:country_id => 120).save will write on 'db/production/sub1.sqlite3'
+
+
+NOT YET IMPLEMENTED
+===================
+* class method can't select correct connection.
+* rake db:migrate can't migrate sub databases.
+
+
+Copyright (c) 2010 masarakki <masaki@hisme.net>, released under the MIT license
