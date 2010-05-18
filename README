@@ -31,14 +31,26 @@ class City << ActiveRecord::MultiConnection
           :sub_1
        end
    end
+   
+   def self.connection_hash_by_sql(sql)
+       match = sql.match /country_id\s*=\s*(\d+)/
+       if match
+          if match[1].to_i < 100
+             :sub_0
+          else
+             :sub_1
+          end
+       else
+          connection
+       end
+   end
 end
-
+City.find(:all, :conditions => ["country_id = ?", 120]) wil connect to 'db/production/sub1.sqlte3'
 City.new(:country_id => 120).save will write on 'db/production/sub1.sqlite3'
 
 
 NOT YET IMPLEMENTED
 ===================
-* class method can't select correct connection.
 * rake db:migrate can't migrate sub databases.
 
 

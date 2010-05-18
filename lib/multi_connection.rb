@@ -2,9 +2,19 @@ class ActiveRecord::MultiConnection < ActiveRecord::Base
   self.abstract_class = true
   alias_method :_orig_connection, :connection
   
+  def self.find_by_sql(sql)
+    connection_by_sql(sql).select_all(sanitize_sql(sql), "#{name} Load").collect! { |record| instantiate(record) }
+  end
+  
+  def self.connection_by_sql(sql)
+    connection_hash = connection_hash_by_sql(sql)
+    return connection if connection_hash.nil?
+    (connection_handler.connection_pools[connection_hash.to_s] || establish_connection(connection_hash)).connection
+  end
+  
   def connection
     return _orig_connection if connection_hash.nil?
-    (connection_handler.connection_pools[connection_hash.to_s] ||   establish_connection(connection_hash)).connection
+    (connection_handler.connection_pools[connection_hash.to_s] || establish_connection(connection_hash)).connection
   end
   
   def establish_connection(spec = nil, name = nil)
