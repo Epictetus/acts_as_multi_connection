@@ -48,10 +48,9 @@ end
 City.find(:all, :conditions => ["country_id = ?", 120]) wil connect to 'db/production/sub1.sqlte3'
 City.new(:country_id => 120).save will write on 'db/production/sub1.sqlite3'
 
-
 NOT YET IMPLEMENTED
 ===================
-* rake db:migrate can't migrate sub databases.
-
+* ONLY rake db:migrate can migrate all databases
+* OTHER commands are not implemented
 
 Copyright (c) 2010 masarakki <masaki@hisme.net>, released under the MIT license
