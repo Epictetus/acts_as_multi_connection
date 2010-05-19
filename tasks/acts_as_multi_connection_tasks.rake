@@ -2,3 +2,18 @@
 # task :acts_as_multi_connection do
 #   # Task goes here
 # end
+namespace :dbs do
+  task :migrate => :environment do
+    configurations = ActiveRecord::Base.configurations
+    ActiveRecord::Migration.verbose = ENV["VERBOSE"] ? ENV["VERBOSE"] == "true" : true
+    ActiveRecord::Migrator.migrate("db/migrate/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+    sub = configurations[RAILS_ENV.to_s][:sub.to_s]
+    if sub
+      sub.each do |key, config|
+        ActiveRecord::Base.establish_connection(config)
+        ActiveRecord::Migrator.migrate("db/migrate/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
+      end
+    end
+    Rake::Task["db:schema:dump"].invoke if ActiveRecord::Base.schema_format == :ruby
+  end
+end
