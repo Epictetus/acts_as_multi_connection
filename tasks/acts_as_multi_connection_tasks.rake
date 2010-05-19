@@ -2,8 +2,13 @@
 # task :acts_as_multi_connection do
 #   # Task goes here
 # end
-namespace :dbs do
-  task :migrate => :environment do
+$LOAD_PATH.unshift(File.dirname(__FILE__) + '/../lib')
+namespace :db do
+  task :override => :environment do
+    require 'acts_as_multi_connection'
+  end
+  
+  task :migrate => :override do
     configurations = ActiveRecord::Base.configurations
     ActiveRecord::Migration.verbose = ENV["VERBOSE"] ? ENV["VERBOSE"] == "true" : true
     ActiveRecord::Migrator.migrate("db/migrate/", ENV["VERSION"] ? ENV["VERSION"].to_i : nil)
