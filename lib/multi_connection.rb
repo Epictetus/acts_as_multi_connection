@@ -54,5 +54,9 @@ class ActiveRecord::MultiConnection < ActiveRecord::Base
       establish_connection(ConnectionSpecification.new(spec, adapter_method), name)
     end
   end
+  
+  def transaction(&block)
+    connection.transaction(&block)
+  end
 end
   
