@@ -48,8 +48,25 @@ end
 City.find(:all, :conditions => ["country_id = ?", 120]) wil connect to 'db/production/sub1.sqlte3'
 City.new(:country_id => 120).save will write on 'db/production/sub1.sqlite3'
 
+== Transaction ==
+you can use transaction only in same connection with using instance.
+ 
+city = City.find(:first, :conditions => ['country_id = ?', 120])  
+city.transaction do
+  city.name = 'other name'
+  city.save!
+  foo.name = 'xxx'
+  foo.save!
+  raise
+end
+
+if city and foo is same connection, each changes should rollback.
+but if foo is other connection, foo's change will be commited.
+
+
 NOT YET IMPLEMENTED
 ===================
+* (instance method) reload method is not implemented 
 * ONLY rake db:migrate can migrate all databases
 * OTHER commands are not implemented
 
