@@ -14,16 +14,16 @@ class ActiveRecord::MultiConnection < ActiveRecord::Base
   
   def connection
     return _orig_connection if connection_hash.nil?
-    (self.class.connection_handler.connection_pools[connection_hash.to_s] || establish_connection(connection_hash)).connection
+    (self.class.connection_handler.connection_pools[connection_hash.to_s] || self.class.establish_connection(connection_hash)).connection
   end
   
-  def establish_connection(spec = nil, name = nil)
+  def self.establish_connection(spec = nil, name = nil)
     case spec
     when nil
       raise AdapterNotSpecified unless defined? RAILS_ENV
       super.establish_connection
     when ConnectionSpecification
-      self.class.connection_handler.establish_connection(name, spec)
+      connection_handler.establish_connection(name, spec)
     when Symbol, String
       name = spec.to_s
       if configuration = configurations[RAILS_ENV.to_s][:sub.to_s][spec.to_s]
@@ -48,7 +48,7 @@ class ActiveRecord::MultiConnection < ActiveRecord::Base
       end
       
       adapter_method = "#{spec[:adapter]}_connection"
-      if !self.class.respond_to?(adapter_method)
+      if !respond_to?(adapter_method)
         raise AdapterNotFound, "database configuration specifies nonexistent #{spec[:adapter]} adapter"
       end
       establish_connection(ConnectionSpecification.new(spec, adapter_method), name)
